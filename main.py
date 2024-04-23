@@ -127,18 +127,25 @@ def welcome_biome(biome):
     time.sleep(1)
 
 
-charms = ['0', '0', '0', '0', '0', '0', '0', '0']
+charms = ['Shield', ['💊', 0], ['💪', 0], ['🌀', 0], ['⚡', 0], ['🧨', 0], ['🐚', 0], ['💀', 0]]
+b_charms = [['', ''], ['', '', ''], ['', '', ''], ['', '', '']]
+
+if b_charms[0][0] == '':
+    b_charms[0][0] = 'No Shield'
+for i in range(3):
+    if b_charms[i+1][1] == '':
+        b_charms[i+1][1] = 'No Potion'
 
 
-charm_etc_shld = ['Shield', False, 0]
+charm_etc_shld = ['Shield', False, 5]
 # id, used t/f, hp
-charm_pot_hlth = ['💊', 'Health', 'Grasslands']
-charm_pot_zapp = ['⚡', 'Zap', 'Mountains']
-charm_pot_posn = ['💀', 'Poison', 'Swamp']
-charm_pot_strg = ['💪', 'Strength', 'Woods']
-charm_pot_frze = ['🌀', 'Freeze', 'Snowy Woods']
+charm_pot_hlth = ['💊', 'Health Potion', 'Grasslands']
+charm_pot_strg = ['💪', 'Strength Potion', 'Woods']
+charm_pot_frze = ['🌀', 'Freeze Potion', 'Snowy Woods']
+charm_pot_zapp = ['⚡', 'Zap Potion', 'Mountains']
 charm_pot_dyna = ['🧨', 'Dynamite', 'Desert']
 charm_pot_crab = ['🐚', 'Crab Conch', 'Beach']
+charm_pot_posn = ['💀', 'Poison Potion', 'Swamp']
 
 potion_title = [charm_etc_shld, charm_pot_hlth, charm_pot_strg, charm_pot_frze, charm_pot_zapp, charm_pot_dyna, charm_pot_crab, charm_pot_posn]
 
@@ -149,16 +156,18 @@ player = ['🙂', player_name, player_hp]
 satchel = 0
 weapon = {'name': '', 'rarity': '', 'id': 0}
 
-sword = {'name': 'Sword', 'rarity': 'Wood', 'id': 0}
-axe = {'name': 'Axe', 'rarity': 'Wood', 'id': 0}
-bow = {'name': 'Bow', 'rarity': 'Wood', 'id': 0}
-x_bow = {'name': 'X-Bow', 'rarity': 'Wood', 'id': 0}
-
-inventory = {'primary': weapon, 'secondary': [sword, axe, bow, x_bow]}
+sword = {'name': 'Sword', 'rarity': 'Wood', 'id': 0, 'have': False}
+axe = {'name': 'Axe', 'rarity': 'Wood', 'id': 0, 'have': False}
+bow = {'name': 'Bow', 'rarity': 'Wood', 'id': 0, 'have': False}
+x_bow = {'name': 'X-Bow', 'rarity': 'Wood', 'id': 0, 'have': False}
 
 win_bandit = False
 win_archer = False
 win_barbar = False
+win_pirate = False
+
+win_bbandit = False
+win_octopus = False
 
 
 def find_rarity(id):
@@ -197,22 +206,43 @@ def upgrade_weapon(weapon):
 
      
 def equip_weapon(new_weapon):
-    weapon = new_weapon
+    weapon['name'] = new_weapon['name']
+    weapon['rarity'] = new_weapon['rarity']
+    weapon['id'] = new_weapon['id']
     say(' | ✋ | ' + player_name + ' equipped the ' + weapon['rarity'] + ' ' + weapon['name'] + ' (Damage: ' + str(find_dmg(new_weapon)) + ')')
 
 
 def find_dmg(weapon):
-    if 'Sword' in weapon['name'] or 'Bow' in weapon['name']:
+    if weapon['name'] == 'Sword' or weapon['name'] == 'Bow':
         for i in range(5):
             if weapon['id'] == i:
                 damage = (i+1)
                 return damage
-    if 'Axe' in weapon['name'] or 'X-Bow' in weapon['name']:
+    if weapon['name'] == 'Axe' or weapon['name'] == 'X-Bow':
         for i in range(5):
             if weapon['id'] == i:
                 damage = (i+2)
-                return damage
+                return damage 
+    return 0 #DEBUG
 
+
+def check_charm(choice, hp):
+    if b_charms[choice-1][1] == 'Health Potion':
+        player_hp += 5
+    if b_charms[choice-1][1] == 'Strength Potion':
+        hp -= find_dmg(weapon)*3
+    if b_charms[choice-1][1] == 'Freeze Potion':
+        return 'code BRRR'
+    if b_charms[choice-1][1] == 'Zap Potion':
+        hp -= 4
+        return 'code ZAP'
+    if b_charms[choice-1][1] == 'Dynamite':
+        hp -= 10
+    if b_charms[choice-1][1] == 'Crab Conch':
+        return 'code PINCH'
+    if b_charms[choice-1][1] == 'Poison Potion':
+        hp -= 2
+        return 'code MOE'
 
 def counterattack(enemy):
     global player_hp
@@ -225,12 +255,8 @@ def counterattack(enemy):
         say(' | 🎲 | Rolling...')
         
         if charm_etc_shld[1] == True:
-            charm_etc_shld[2] -= 1
-            if charm_etc_shld > 0:
-                return say(' | 🔄 | Hit deflected!')
-            else:
-                return say(' | 🔄 | Shield broken!')
-
+            return say(' | 🔄 | Hit deflected!')
+            
         if dice_roll <= 5:
             return say(' | ❌ | Miss!')
         elif dice_roll == 20:
@@ -292,24 +318,27 @@ def start_battle(enemy, weapon):
                 say('\n | ' + enemy[0] + ' | ' + enemy[4] + ' ' + enemy[1] + ' loses!')
                 player_victory = True
         elif move[turn] == 'C' or move[turn] == 'c':
-            if charms == ['0', '0', '0', '0', '0', '0', '0', '0']:
+            if b_charms == [['No Shield', '', ''], ['', 'No Potion', ''], ['', 'No Potion', ''], ['', 'No Potion', '']]:
                 time.sleep(0.5)
                 say('\n | ❗ | ' + player_name + ' has no charms!')
-                if charms[0] == '0':
-                    charms[0] = 'No Shield'
-                for n in range(7):
-                    if charms[n+1] == '0':
-                        charms[n+1] = 'No Potion'
+                counterattack(enemy)
+                say(' | ❤️  | Health remaining: ' + str(player_hp))
                 turn += 1
             else:
                 time.sleep(0.5)
                 say('\n | Here be thy charms!')
-                say(' | 1 - ' + charms[0] + ' | 2 - ' + charms[1] + ' | 3 - ' + charms[2] + ' | 4 - ' + charms[3] + ' |\n')
+                say(' | 1 - ' + b_charms[0][0] + ' | 2 - ' + b_charms[1][1] + ' | 3 - ' + b_charms[2][1] + ' | 4 - ' + b_charms[3][1] + ' |\n')
                 choice = int(input(' | Choose a charm (1/2/3/4):'))
                 if choice == 1:
                     charm_etc_shld[1] = True
                     counterattack(enemy)
-                
+                else:
+                    check_charm(choice, enemy_hp)
+                    if check_charm(choice, enemy_hp) != 'code ZAP' or check_charm(choice, enemy_hp) != 'code BRRR':
+                        counterattack(enemy)
+                    
+                    
+                    
                 
         elif move[turn] == 'F' or move[turn] == 'f':
             flee_confirm = str(input(' | ❗ | Flee from battle? (Y/N): '))
@@ -326,11 +355,14 @@ def start_battle(enemy, weapon):
             if enemy == e_bandit and win_bandit == False:
                 say(' | 🤑 | ' + player_name + ' collected a Bandit\'s shield!')
                 charms[0] = charm_etc_shld
+                b_charms[0] = charm_etc_shld
                 return
             if enemy == e_archer and win_archer == False:
-                say(' | 🏹 | ' + player_name + ' collected an Archer\'s crossbow!')
+                say(' | 🏹 | ' + player_name + ' collected an Archer\'s bow!')
             if enemy == e_barbar and win_barbar == False:
                 say(' | 🪓 | ' + player_name + ' collected a Barbarian\'s axe!')
+            if enemy == e_pirate and win_pirate == False:
+                say(' | ☠️ | ' + player_name + ' collected a Pirate\'s crossbow!')
             return
         elif player_hp == 0:
             replay = str(input(' | 💔 | Great adventurer ' + player_name + ' has fallen. Play again? (Y/N): '))
@@ -342,39 +374,86 @@ def start_battle(enemy, weapon):
 
 def loop(alpha, bravo, charlie):
     global satchel
-    
-    delta = biome_list.index(current_biome)
 
-    say(' | 🎒 | Open inventory (I)\n | ⚔️ | Fight an enemy (E)\n | 💰 | Search for loot (L)\n | 🔨 | Talk to the blacksmith (B)')
-    alpha += str(input(' | ❓ | Make a choice (I/E/L/B): '))
-    if alpha[bravo] == 'I' or alpha[bravo] == 'i':
-        say(' | 🎒 | INVENTORY')
-    if alpha[bravo] == 'E' or alpha[bravo] == 'e':
-        start_battle(charlie[random.randint(0, (len(charlie))-1)], weapon)
-    if alpha[bravo] == 'L' or alpha[bravo] == 'l':
-        say(' | 💰 | Searching for loot...')
-        loot_roll = random.randint(1, (delta + 3))
-        if loot_roll == 1:
-            gold = random.randint(1, player_hp)
-            say(' | 💰 | ' + player_name + ' found ' + str(gold) + ' gold!')
-            satchel += gold
-        elif loot_roll == 2:
-            if current_biome == 'Beach':
-                say(' | 🐚 | ' + player_name + ' found a Crab Conch!')
-            elif current_biome == 'Desert':
-                say(' | 🧨 | ' + player_name + ' found Dynamite!')
-            elif current_biome == 'Volcano' or current_biome == 'Castle':
-                gold = (random.randint(1, player_hp))*2
+    while True:
+        say(' | 🎒 | Open inventory (I)\n | ⚔️  | Fight an enemy (E)\n | 💰 | Search for loot (L)\n | 🔨 | Talk to the blacksmith (B)')
+        alpha += str(input(' | ❓ | Make a choice (I/E/L/B): '))
+        if alpha[bravo] == 'I' or alpha[bravo] == 'i':
+            say('\n | 🎒 | INVENTORY\n | 🎒 | Weapons, Charms, Satchel')
+            menu = str(input(' | ❓ | Pick which menu (W/C/S): '))
+            if menu == 'W' or menu == 'w':
+                say(' | Equipped weapon: ' + weapon['rarity'] + ' ' + weapon['name'])
+                say(' | All weapons:\n | Sword (Rarity: ' + sword['rarity'] + ')\n | Axe (Rarity: ' + axe['rarity'] + ')\n | Bow (Rarity: ' + bow['rarity'] + ')\n | X-Bow (Rarity: ' + x_bow['rarity'] + ')')
+                equip = str(input(' | ❓ | Equip weapons? Any other key to cancel. (S/A/B/X): '))
+                if equip == 'S' or equip == 's':
+                    if weapon['name'] == 'Sword':
+                        say(' | ❗ | ' + player_name + ' already has a Sword equipped!')
+                    elif sword['have'] == False:
+                        say(' | ❗ | ' + player_name + ' doesn\'t have a Sword!')
+                    else:
+                        equip_weapon(sword)
+                if equip == 'A' or equip == 'a':
+                    if weapon['name'] == 'Axe':
+                        say(' | ❗ | ' + player_name + ' already has an Axe equipped!')
+                    elif axe['have'] == False:
+                        say(' | ❗ | ' + player_name + ' doesn\'t have an Axe!')
+                    else:
+                        equip_weapon(axe)
+                if equip == 'B' or equip == 'b':
+                    if weapon['name'] == 'Bow':
+                        say(' | ❗ | ' + player_name + ' already has a Bow equipped!')
+                    elif axe['have'] == False:
+                        say(' | ❗ | ' + player_name + ' doesn\'t have a Bow!')
+                    else:
+                        equip_weapon(bow)
+                if equip == 'X' or equip == 'x':
+                    if weapon['name'] == 'X-Bow':
+                        say(' | ❗ | ' + player_name + ' already has a X-Bow equipped!')
+                    elif axe['have'] == False:
+                        say(' | ❗ | ' + player_name + ' doesn\'t have a X-Bow!')
+                    else:
+                        equip_weapon(bow)
+
+
+            elif menu == 'C' or menu == 'c':
+                say(' | Battle Charms: ' + b_charms[0][0] + ', ' + b_charms[1][1] + ', ' + b_charms[2][1] + ', ' + b_charms[3][1])
+                say(' | All Charms:    ' + charms[1][0] + ' x' + str(charms[1][1]) + ', ' + charms[2][0] + ' x' + str(charms[2][1]) + ', ' + charms[3][0] + ' x' + str(charms[3][1]) + ', ' + charms[4][0] + ' x' + str(charms[4][1]) + ', ' + charms[5][0] + ' x' + str(charms[5][1]) + ', ' + charms[6][0] + ' x' + str(charms[6][1]) + ', ' + charms[7][0] + ' x' + str(charms[7][1]))
+                swap = str(input(' | Type B to equip charms for battle. Any other key to cancel. '))
+                if swap == 'B' or swap == 'b':
+                    charm_x = int(input(' | Choose the charm to move (1/2/3/4/5/6/7): '))
+                    charm_y = int(input(' | Choose the slot to move it to (1/2/3): '))
+                    if charms[charm_x][1] - 1 <= 0:
+                        say(' | ❗ | Not enough charms to move!\n')
+                    else:
+                        b_charms[charm_y] = potion_title[charm_x]
+                        charms[charm_x][1] -= 1
+            else:
+                say('| 💰 | You have ' + str(satchel) + ' in your satchel.')
+
+
+        if alpha[bravo] == 'E' or alpha[bravo] == 'e':
+            start_battle(charlie[random.randint(0, (len(charlie))-1)], weapon)
+        if alpha[bravo] == 'L' or alpha[bravo] == 'l':
+            say('\n | ❗ | -5 Gold!')
+            satchel -= 5
+            say('\n | 💰 | Searching for loot...')
+            loot_roll = random.randint(1, (biome_list.index(current_biome) + 3))
+            if loot_roll == 1:
+                gold = random.randint(1, player_hp)
                 say(' | 💰 | ' + player_name + ' found ' + str(gold) + ' gold!')
                 satchel += gold
+            elif loot_roll == 2:
+                if current_biome == 'Volcano' or current_biome == 'Castle':
+                    gold = (random.randint(1, player_hp))*2
+                    say(' | 💰 | ' + player_name + ' found ' + str(gold) + ' gold!')
+                    satchel += gold
+                else:
+                    say(' | ❗ | ' + player_name + ' found a ' + potion_title[biome_list.index(current_biome)][1] + '!')
+                    charms[1] += 1
             else:
-                say(' | 🧪 | ' + player_name + ' found a ' + potion_title[delta][1] + ' Potion!')
-                charms[delta] = potion_title[delta]
-                print(charms) #DEBUG
-        else:
-            say(' | 💢 | ' + player_name + ' Found nothing!')
-    if alpha[bravo] == 'B' or alpha[bravo] == 'b':
-        say(' | 🔨 |')
+                say(' | 💢 | ' + player_name + ' found nothing!')
+        if alpha[bravo] == 'B' or alpha[bravo] == 'b':
+            say(' | 🔨 |')
 
 
 def hub():
