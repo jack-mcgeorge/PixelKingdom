@@ -70,6 +70,7 @@ b_dragon = ['🐉', 'Dragon', 24, "The Dragon roars!", "The Dragon has been slay
 # Bosses (secret)
 b_secret = ['🤓', 'Mr. Crockett', 30, "Mr. Crockett tells you to lock in!", "Mr. Crockett blows up with confetti!", 50]
 
+boss_list = [b_villager, b_bear, b_owl, b_yeti, b_griffin, b_bking, b_davy, b_ogre, b_taurus, b_dragon]
 
 def say(text):
     print(text)
@@ -78,7 +79,6 @@ def say(text):
 biome_list = ['Pixel Kingdom', 'Grasslands', 'Woods', 'Snowy Woods', 'Mountains', 'Desert', 'Beach', 'Swamp', 'Volcano', 'Castle']
 current_biome = ''
 
-# Spaghetti code below. Watch your step
 def welcome_biome(biome):
     global current_biome
 
@@ -153,7 +153,7 @@ potion_title = [charm_etc_shld, charm_pot_hlth, charm_pot_strg, charm_pot_frze, 
 player_name = str(input("Adventurer's name: "))
 player_hp = 10
 player = ['🙂', player_name, player_hp]
-satchel = 0
+satchel = 50
 weapon = {'name': '', 'rarity': '', 'id': 0}
 
 sword = {'name': 'Sword', 'rarity': 'Wood', 'id': 0, 'have': False}
@@ -249,7 +249,7 @@ def counterattack(enemy):
     enemy_hp = enemy[2]
 
     if enemy_hp > 0: 
-        dice_roll = random.randint(1, 20)
+        dice_roll = random.randint(1, 10)
 
         say('\n | ' + enemy[0] + ' | ' + enemy[1] + ' attacks!')
         say(' | 🎲 | Rolling...')
@@ -257,14 +257,12 @@ def counterattack(enemy):
         if charm_etc_shld[1] == True:
             return say(' | 🔄 | Hit deflected!')
             
-        if dice_roll <= 5:
+        if dice_roll <= 3:
             return say(' | ❌ | Miss!')
-        elif dice_roll == 20:
-            player_hp -= (round(enemy_hp/3)+2)
-            return say(' | ⭐ | Critical hit!')
         else:
             player_hp -= (round(enemy_hp/3))
-            return say(' | ⭕ | Hit!')
+            say(' | ⭕ | Hit!')
+            return say(' | ❤️  | Health remaining: ' + str(player_hp))
 
 
 def start_battle(enemy, weapon):
@@ -280,7 +278,7 @@ def start_battle(enemy, weapon):
     move = []
     
     say('\n ' + str(player[0]) + ' ⚔️  ' + str(enemy[0]))
-    say(' ' + str(player[1]) + ' VS ' + str(enemy[1]))
+    say(' ' + str(player[1]) + ' VS. ' + str(enemy[1]))
     time.sleep(1)
 
     turn = 0
@@ -304,7 +302,6 @@ def start_battle(enemy, weapon):
                 say(' | ' + enemy[0] + ' | ' + enemy[3])
 
                 counterattack(enemy)
-                say(' | ❤️  | Health remaining: ' + str(player_hp))
                 turn += 1
             else:
                 say(' | ⭕ | Hit!')
@@ -312,23 +309,21 @@ def start_battle(enemy, weapon):
                 say(' | ' + enemy[0] + ' | ' + enemy[3])
                 
                 counterattack(enemy)
-                say(' | ❤️  | Health remaining: ' + str(player_hp))
                 turn += 1
             if enemy_hp <= 0:
                 say('\n | ' + enemy[0] + ' | ' + enemy[4] + ' ' + enemy[1] + ' loses!')
                 player_victory = True
         elif move[turn] == 'C' or move[turn] == 'c':
-            if b_charms == [['No Shield', '', ''], ['', 'No Potion', ''], ['', 'No Potion', ''], ['', 'No Potion', '']]:
+            if b_charms == [['No Shield', ''], ['', 'No Potion', ''], ['', 'No Potion', ''], ['', 'No Potion', '']]:
                 time.sleep(0.5)
                 say('\n | ❗ | ' + player_name + ' has no charms!')
                 counterattack(enemy)
-                say(' | ❤️  | Health remaining: ' + str(player_hp))
                 turn += 1
             else:
                 time.sleep(0.5)
                 say('\n | Here be thy charms!')
                 say(' | 1 - ' + b_charms[0][0] + ' | 2 - ' + b_charms[1][1] + ' | 3 - ' + b_charms[2][1] + ' | 4 - ' + b_charms[3][1] + ' |\n')
-                choice = int(input(' | Choose a charm (1/2/3/4):'))
+                choice = int(input(' | Choose a charm (1/2/3/4): '))
                 if choice == 1:
                     charm_etc_shld[1] = True
                     counterattack(enemy)
@@ -336,9 +331,9 @@ def start_battle(enemy, weapon):
                     check_charm(choice, enemy_hp)
                     if check_charm(choice, enemy_hp) != 'code ZAP' or check_charm(choice, enemy_hp) != 'code BRRR':
                         counterattack(enemy)
-                    
-                    
-                    
+                
+                
+                
                 
         elif move[turn] == 'F' or move[turn] == 'f':
             flee_confirm = str(input(' | ❗ | Flee from battle? (Y/N): '))
@@ -371,17 +366,109 @@ def start_battle(enemy, weapon):
             elif replay == 'N' or replay == 'n':
                 exit
 
-
-def loop(alpha, bravo, charlie):
+def boss_battle(enemy, weapon):
     global satchel
+    
+    enemy_hp = enemy[2]
+
+    player_victory = False
+    move = []
+    
+    say('\n ' + str(player[0]) + ' ⚔️  ' + str(enemy[0]))
+    say(' ' + str(player[1]) + ' VS. (BOSS) ' + str(enemy[1]))
+    time.sleep(1)
+
+    turn = 0
+    while True:
+        move += str(input('\n | ATTACK | CHARMS | \n Enter move (A/C/F): '))
+
+
+        if move[turn] == 'A' or move[turn] == 'a':
+            say(' | ❗ | ' + player_name + ' attacks with their ' + weapon['name'] + '!')
+            say(' | 🎲 | Rolling...')
+            dice_roll = random.randint(1, 12)
+            if dice_roll == 1:
+                say(' | ❌ | Miss!')
+                say(' | ' + enemy[0] + ' | ' + enemy[3])
+                
+                counterattack(enemy)
+                turn += 1
+            elif dice_roll == 12:
+                say(' | ⭐ | Critical hit!')
+                enemy_hp -= (find_dmg(weapon)*2)
+                say(' | ' + enemy[0] + ' | ' + enemy[3])
+
+                counterattack(enemy)
+                turn += 1
+            else:
+                say(' | ⭕ | Hit!')
+                enemy_hp -= find_dmg(weapon)
+                say(' | ' + enemy[0] + ' | ' + enemy[3])
+                
+                counterattack(enemy)
+                turn += 1
+            if enemy_hp <= 0:
+                say('\n | ' + enemy[0] + ' | ' + enemy[4] + ' ' + enemy[1] + ' loses!')
+                player_victory = True
+        elif move[turn] == 'C' or move[turn] == 'c':
+            if b_charms == [['No Shield', ''], ['', 'No Potion', ''], ['', 'No Potion', ''], ['', 'No Potion', '']]:
+                time.sleep(0.5)
+                say('\n | ❗ | ' + player_name + ' has no charms!')
+                counterattack(enemy)
+                turn += 1
+            else:
+                time.sleep(0.5)
+                say('\n | Here be thy charms!')
+                say(' | 1 - ' + b_charms[0][0] + ' | 2 - ' + b_charms[1][1] + ' | 3 - ' + b_charms[2][1] + ' | 4 - ' + b_charms[3][1] + ' |\n')
+                choice = int(input(' | Choose a charm (1/2/3/4): '))
+                if choice == 1:
+                    charm_etc_shld[1] = True
+                    counterattack(enemy)
+                else:
+                    check_charm(choice, enemy_hp)
+                    if check_charm(choice, enemy_hp) != 'code ZAP' or check_charm(choice, enemy_hp) != 'code BRRR':
+                        counterattack(enemy)
+                
+                
+                
+        if player_victory == True:
+            say(' | 👑 | ' + player_name + ' wins!')
+            reward = random.randint(1, enemy[5])
+            satchel += reward
+            say(' | 💰 | ' + player_name + ' gained ' + str(reward) + ' gold!')
+            return
+        elif player_hp == 0:
+            replay = str(input(' | 💔 | Great adventurer ' + player_name + ' has fallen. Play again? (Y/N): '))
+            if replay == 'Y' or replay == 'y':
+                main()
+            elif replay == 'N' or replay == 'n':
+                exit
+
+
+def loop(biome):
+    global satchel
+
+    history = []
+    choice = 0
 
     while True:
         say(' | 🎒 | Open inventory (I)\n | ⚔️  | Fight an enemy (E)\n | 💰 | Search for loot (L)\n | 🔨 | Talk to the blacksmith (B)')
-        alpha += str(input(' | ❓ | Make a choice (I/E/L/B): '))
-        if alpha[bravo] == 'I' or alpha[bravo] == 'i':
+        if satchel >= 50:
+            travel = str(input(' | 🗺️  | Travel to next biome? (Y/N): '))
+            if travel == 'Y' or travel == 'y':
+                start_battle(boss_list[biome_list.index(current_biome)], weapon)
+                satchel -= 50
+                break
+        if (50-satchel) <= 0:
+            say(' | 🗺️  | Gold required to reach next biome: 0')
+        else:
+           say(' | 🗺️  | Gold required to reach next biome: ' + str(50-satchel))
+        history += str(input(' | ❓ | Make a choice (I/E/L/B): '))
+        if history[choice] == 'I' or history[choice] == 'i':
+            choice += 1
             say('\n | 🎒 | INVENTORY\n | 🎒 | Weapons, Charms, Satchel')
-            menu = str(input(' | ❓ | Pick which menu (W/C/S): '))
-            if menu == 'W' or menu == 'w':
+            inventory_menu = str(input(' | ❓ | Pick which menu (W/C/S): '))
+            if inventory_menu == 'W' or inventory_menu == 'w':
                 say(' | Equipped weapon: ' + weapon['rarity'] + ' ' + weapon['name'])
                 say(' | All weapons:\n | Sword (Rarity: ' + sword['rarity'] + ')\n | Axe (Rarity: ' + axe['rarity'] + ')\n | Bow (Rarity: ' + bow['rarity'] + ')\n | X-Bow (Rarity: ' + x_bow['rarity'] + ')')
                 equip = str(input(' | ❓ | Equip weapons? Any other key to cancel. (S/A/B/X): '))
@@ -415,7 +502,7 @@ def loop(alpha, bravo, charlie):
                         equip_weapon(bow)
 
 
-            elif menu == 'C' or menu == 'c':
+            elif inventory_menu == 'C' or inventory_menu == 'c':
                 say(' | Battle Charms: ' + b_charms[0][0] + ', ' + b_charms[1][1] + ', ' + b_charms[2][1] + ', ' + b_charms[3][1])
                 say(' | All Charms:    ' + charms[1][0] + ' x' + str(charms[1][1]) + ', ' + charms[2][0] + ' x' + str(charms[2][1]) + ', ' + charms[3][0] + ' x' + str(charms[3][1]) + ', ' + charms[4][0] + ' x' + str(charms[4][1]) + ', ' + charms[5][0] + ' x' + str(charms[5][1]) + ', ' + charms[6][0] + ' x' + str(charms[6][1]) + ', ' + charms[7][0] + ' x' + str(charms[7][1]))
                 swap = str(input(' | Type B to equip charms for battle. Any other key to cancel. '))
@@ -431,9 +518,11 @@ def loop(alpha, bravo, charlie):
                 say('| 💰 | You have ' + str(satchel) + ' in your satchel.')
 
 
-        if alpha[bravo] == 'E' or alpha[bravo] == 'e':
-            start_battle(charlie[random.randint(0, (len(charlie))-1)], weapon)
-        if alpha[bravo] == 'L' or alpha[bravo] == 'l':
+        if history[choice] == 'E' or history[choice] == 'e':
+            choice += 1
+            start_battle(biome[random.randint(0, (len(biome))-1)], weapon)
+        if history[choice] == 'L' or history[choice] == 'l':
+            choice += 1
             say('\n | ❗ | -5 Gold!')
             satchel -= 5
             say('\n | 💰 | Searching for loot...')
@@ -449,54 +538,57 @@ def loop(alpha, bravo, charlie):
                     satchel += gold
                 else:
                     say(' | ❗ | ' + player_name + ' found a ' + potion_title[biome_list.index(current_biome)][1] + '!')
-                    charms[1] += 1
+                    charms[potion_title[biome_list.index(current_biome)]][1] += 1
             else:
-                say(' | 💢 | ' + player_name + ' found nothing!')
-        if alpha[bravo] == 'B' or alpha[bravo] == 'b':
-            say(' | 🔨 |')
+                say(' | 💢 | ' + player_name + ' found nothing!\n')
+        if history[choice] == 'B' or history[choice] == 'b':
+            choice += 1
+            say(' | 🔨 | BLACKSMITH\n | 🔨 | Upgrade your equipped weapon?')
+            upgrade = str(input(' | ❓ | Upgrade weapon? Any other key to cancel. (Y/N): '))
+            if upgrade == 'Y' or upgrade == 'y':
+                upgrade_weapon(weapon)
+            elif upgrade == 'N' or upgrade == 'n':
+                say(' | 🔨 | See you soon!')
 
 
 def hub():
-    history = []
-    choice = 0
+    
 
     while True:
-        if current_biome == 'Grasslands':
-            say('\n | 🗺️  | ' + player_name + ' finds themself in a grassy plain. Do they...')
-            loop(history, choice, gr_enemies)
-            choice += 1
-        if current_biome == 'Woods':
-            say('\n | 🗺️  | ' + player_name + ' finds themself in a dense forest. Do they...')
-            loop(history, choice, wo_enemies)
-            choice += 1
-        if current_biome == 'Snowy Woods':
-            say('\n | 🗺️  | ' + player_name + ' finds themself in a snow-covered forest. Do they...')
-            loop(history, choice, sn_enemies)
-            choice += 1
-        if current_biome == 'Mountains':
-            say('\n | 🗺️  | ' + player_name + ' finds themself in a steep mountain range. Do they...')
-            loop(history, choice, mo_enemies)
-            choice += 1
-        if current_biome == 'Desert':
-            say('\n | 🗺️  | ' + player_name + ' finds themself in a hot desert canyon. Do they...')
-            loop(history, choice, de_enemies)
-            choice += 1
-        if current_biome == 'Beach':
-            say('\n | 🗺️  | ' + player_name + ' finds themself in a tropical beach. Do they...')
-            loop(history, choice, be_enemies)
-            choice += 1
-        if current_biome == 'Swamp':
-            say('\n | 🗺️  | ' + player_name + ' finds themself in a murky swamp. Do they...')
-            loop(history, choice, sw_enemies)
-            choice += 1
-        if current_biome == 'Volcano':
-            say('\n | 🗺️  | ' + player_name + ' finds themself in a hot volcano! Do they...')
-            loop(history, choice, vo_enemies)
-            choice += 1
-        if current_biome == 'Castle':
-            say('\n | 🗺️  | ' + player_name + ' finds themself in the dragon\'s keep. Do they...')
-            loop(history, choice, ca_enemies)
-            choice += 1
+        say('\n | 🗺️  | ' + player_name + ' finds themself in a grassy plain. Do they...')
+        loop(gr_enemies)
+        
+        welcome_biome(biome_list[2])
+        say('\n | 🗺️  | ' + player_name + ' finds themself in a dense forest. Do they...')
+        loop(wo_enemies)
+
+        welcome_biome(biome_list[3])
+        say('\n | 🗺️  | ' + player_name + ' finds themself in a snow-covered forest. Do they...')
+        loop(sn_enemies)
+
+        welcome_biome(biome_list[4])
+        say('\n | 🗺️  | ' + player_name + ' finds themself in a steep mountain range. Do they...')
+        loop(mo_enemies)
+
+        welcome_biome(biome_list[5])
+        say('\n | 🗺️  | ' + player_name + ' finds themself in a hot desert canyon. Do they...')
+        loop(de_enemies)
+
+        welcome_biome(biome_list[6])
+        say('\n | 🗺️  | ' + player_name + ' finds themself in a tropical beach. Do they...')
+        loop(be_enemies)
+
+        welcome_biome(biome_list[7])
+        say('\n | 🗺️  | ' + player_name + ' finds themself in a murky swamp. Do they...')
+        loop(sw_enemies)
+
+        welcome_biome(biome_list[8])
+        say('\n | 🗺️  | ' + player_name + ' finds themself in a hot volcano! Do they...')
+        loop(vo_enemies)
+
+        welcome_biome(biome_list[9])
+        say('\n | 🗺️  | ' + player_name + ' finds themself in the dragon\'s keep. Do they...')
+        loop(ca_enemies)
 
 
 def tutorial():
