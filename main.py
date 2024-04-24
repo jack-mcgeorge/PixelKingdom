@@ -404,12 +404,9 @@ def boss_battle(enemy, weapon):
                 say(' | ⭕ | Hit!')
                 enemy_hp -= find_dmg(weapon)
                 say(' | ' + enemy[0] + ' | ' + enemy[3])
-                
+
                 counterattack(enemy)
                 turn += 1
-            if enemy_hp <= 0:
-                say('\n | ' + enemy[0] + ' | ' + enemy[4] + ' ' + enemy[1] + ' loses!')
-                player_victory = True
         elif move[turn] == 'C' or move[turn] == 'c':
             if b_charms == [['No Shield', ''], ['', 'No Potion', ''], ['', 'No Potion', ''], ['', 'No Potion', '']]:
                 time.sleep(0.5)
@@ -454,11 +451,16 @@ def loop(biome):
     while True:
         say(' | 🎒 | Open inventory (I)\n | ⚔️  | Fight an enemy (E)\n | 💰 | Search for loot (L)\n | 🔨 | Talk to the blacksmith (B)')
         if satchel >= 50:
-            travel = str(input(' | 🗺️  | Travel to next biome? (Y/N): '))
-            if travel == 'Y' or travel == 'y':
-                start_battle(boss_list[biome_list.index(current_biome)], weapon)
-                satchel -= 50
-                break
+            if current_biome == 'Castle':
+                travel = str(input(' | 🐉 | Face the mighty dragon? (Y/N): '))
+                if travel == 'Y' or travel == 'y':
+                    start_battle(b_dragon, weapon)
+            else:
+                travel = str(input(' | 🗺️  | Travel to next biome? (Y/N): '))
+                if travel == 'Y' or travel == 'y':
+                    start_battle(boss_list[biome_list.index(current_biome)], weapon)
+                    satchel -= 50
+                    break
         if (50-satchel) <= 0:
             say(' | 🗺️  | Gold required to reach next biome: 0')
         else:
