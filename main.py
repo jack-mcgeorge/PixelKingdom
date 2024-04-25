@@ -69,7 +69,6 @@ b_dragon = ['🐉', 'Dragon', 24, "The Dragon roars!", "The Dragon has been slai
 # Bosses (secret)
 b_secret = ['🤓', 'Mr. Crockett', 30, "Mr. Crockett tells you to lock in!", "Mr. Crockett blows up with confetti!", 50]
 
-enemy_list = [gr_enemies, wo_enemies, sn_enemies, mo_enemies, de_enemies, be_enemies, sw_enemies, vo_enemies, ca_enemies]
 boss_list = [b_villager, b_bear, b_owl, b_yeti, b_griffin, b_bking, b_davy, b_ogre, b_taurus, b_dragon]
 
 def say(text):
@@ -245,6 +244,8 @@ def check_charm(choice, hp):
 
 def counterattack(enemy):
     global player_hp
+    global charm_etc_shld
+    
     enemy_hp = enemy[2]
 
     if enemy_hp > 0: 
@@ -531,33 +532,36 @@ def loop(biome):
                 say(' | 💰 | You have ' + str(satchel) + ' gold in your satchel.')
 
         if history[choice] == 'E' or history[choice] == 'e':
-            start_battle(biome[random.randint(0, (len(enemy_list[biome_list.index(current_biome)]) + 1))], weapon)
+            start_battle(biome[random.randint(0, len(biome))], weapon)
 
         if history[choice] == 'L' or history[choice] == 'l':
-            say('\n | ❗ | -5 Gold!')
-            satchel -= 5
-            say('\n | 💰 | Searching for loot...')
-            loot_roll = random.randint(1, (biome_list.index(current_biome) + 3))
-            if loot_roll == 1:
-                gold = random.randint(1, player_hp)
-                say(' | 💰 | ' + player_name + ' found ' + str(gold) + ' gold!')
-                satchel += gold
-            elif loot_roll == 2:
-                if current_biome == 'Volcano' or current_biome == 'Castle':
-                    gold = (random.randint(1, player_hp))*2
+            if satchel - 5 < 0:
+                say('\n | ❗ | Not enough gold to search!')
+            else:
+                say('\n | ❗ | -5 Gold!')
+                satchel -= 5
+                say('\n | 💰 | Searching for loot...')
+                loot_roll = random.randint(1, (biome_list.index(current_biome) + 3))
+                if loot_roll == 1:
+                    gold = random.randint(1, player_hp)
                     say(' | 💰 | ' + player_name + ' found ' + str(gold) + ' gold!')
                     satchel += gold
-                else:
-                    if (current_biome == 'Desert' and win_bbandit == True) or (current_biome == 'Beach' and win_octopus == True):
-                        say(' | ❗ | ' + player_name + ' found a ' + potion_title[biome_list.index(current_biome)][1] + '!')
-                        charms[potion_title[biome_list.index(current_biome)]][1] += 1
-                    elif (current_biome == 'Desert' and win_bbandit == False) or (current_biome == 'Beach' and win_octopus == False):
-                        say(' | 💢 | ' + player_name + ' found nothing!\n')
+                elif loot_roll == 2:
+                    if current_biome == 'Volcano' or current_biome == 'Castle':
+                        gold = (random.randint(1, player_hp))*2
+                        say(' | 💰 | ' + player_name + ' found ' + str(gold) + ' gold!')
+                        satchel += gold
                     else:
-                        say(' | ❗ | ' + player_name + ' found a ' + potion_title[biome_list.index(current_biome)][1] + '!')
-                        charms[potion_title[biome_list.index(current_biome)]][1] += 1
-            else:
-                say(' | 💢 | ' + player_name + ' found nothing!\n')
+                        if (current_biome == 'Desert' and win_bbandit == True) or (current_biome == 'Beach' and win_octopus == True):
+                            say(' | ❗ | ' + player_name + ' found a ' + potion_title[biome_list.index(current_biome)][1] + '!')
+                            charms[potion_title[biome_list.index(current_biome)]][1] += 1
+                        elif (current_biome == 'Desert' and win_bbandit == False) or (current_biome == 'Beach' and win_octopus == False):
+                            say(' | 💢 | ' + player_name + ' found nothing!\n')
+                        else:
+                            say(' | ❗ | ' + player_name + ' found a ' + potion_title[biome_list.index(current_biome)][1] + '!')
+                            charms[potion_title[biome_list.index(current_biome)]][1] += 1
+                else:
+                    say(' | 💢 | ' + player_name + ' found nothing!\n')
 
         if history[choice] == 'B' or history[choice] == 'b':
             choice += 1
