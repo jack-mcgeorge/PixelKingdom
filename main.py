@@ -271,6 +271,10 @@ def start_battle(enemy, weapon):
     global win_bandit
     global win_archer
     global win_barbar
+    global win_pirate
+
+    global win_bbandit
+    global win_octopus
 
     enemy_hp = enemy[2]
 
@@ -456,6 +460,7 @@ def boss_battle(enemy, weapon):
 
 def loop(biome):
     global satchel
+    global player_hp
 
     history = []
     choice = 0
